@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    // Плагин для вшивания (shade) внешних библиотек в наш jar файл
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'ru.disphobia'
+version = '1.0'
+
+// Настройка версии Java (17 стандарт для Minecraft 1.17-1.20)
+// Если сервер на 1.16.5 и ниже (Java 8 или 11), измени 17 на 8 или 11
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    // Spigot API
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+
+    // Vault API
+    maven { url = 'https://jitpack.io' }
+
+    // PlaceholderAPI
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+}
+
+dependencies {
+    // ---- БИБЛИОТЕКИ СЕРВЕРА (compileOnly - НЕ вшиваются в плагин) ----
+
+    // Spigot API (можешь поменять версию на ту, под которую пишешь, например 1.12.2-R0.1-SNAPSHOT)
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+
+    // Vault API
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
+
+    // PlaceholderAPI
+    compileOnly 'me.clip:placeholderapi:2.11.5'
+
+
+    // ---- ВНЕШНИЕ БИБЛИОТЕКИ (implementation - ВШИВАЮТСЯ в плагин) ----
+
+    // HikariCP (Пул подключений к MySQL)
+    // ВАЖНО: Если у тебя Java 8, используй версию '4.0.3' вместо '5.1.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+
+    // Jedis (Клиент для Redis)
+    implementation 'redis.clients:jedis:4.4.3'
+
+    // Slf4j (Нужен для правильной работы логов HikariCP)
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+}
+
+// Настройки компиляции (поддержка кодировки UTF-8)
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// Настройка ShadowJar (Вшивание и релокация)
+shadowJar {
+    // Название итогового файла
+    archiveBaseName.set('EcoBridge')
+    archiveClassifier.set('')
+    archiveVersion.set(project.version.toString())
+
+    // РЕЛОКАЦИЯ: Изменяет пути библиотек внутри твоего плагина.
+    // Это ОБЯЗАТЕЛЬНО, чтобы твой плагин не конфликтовал с другими плагинами,
+    // которые тоже могут использовать HikariCP или Jedis, но других версий.
+    relocate 'com.zaxxer.hikari', 'ru.disphobia.ecobridge.libs.hikari'
+    relocate 'redis.clients.jedis', 'ru.disphobia.ecobridge.libs.jedis'
+    relocate 'org.apache.commons.pool2', 'ru.disphobia.ecobridge.libs.pool2' // Зависимость Jedis
+    relocate 'org.slf4j', 'ru.disphobia.ecobridge.libs.slf4j'
+}
+
+// При вызове стандартного build, автоматически делать shadowJar
+tasks.build {
+    dependsOn tasks.shadowJar
+}

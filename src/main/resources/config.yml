@@ -1,0 +1,35 @@
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  database: "economy"
+  username: "root"
+  password: ""
+
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: "" # Оставь пустым, если без пароля
+
+economy:
+  starting-balance: 0.0
+
+debug:
+  balance-operations: false
+
+logging:
+  balance:
+    enabled: false
+    actions:
+      addmoney: true
+      withdrawmoney: true
+      setbalance: true
+      getbalance: true
+
+# Интервал обновления топа (в секундах)
+baltop-update-interval: 120
+
+messages:
+  baltop-header: "§8[ §6Топ богачей §8]"
+  baltop-format: "§e%pos%. §7%name% §8- §a%balance% ⛃"
+  baltop-footer: "§8-------------------"
+  baltop-empty: "§c---"

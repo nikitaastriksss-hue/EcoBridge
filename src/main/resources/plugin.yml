@@ -1,0 +1,23 @@
+name: EcoBridge
+version: 1.0
+main: ru.disphobia.ecobridge.EcoBridge
+api-version: '1.13' # Обязательно для версий 1.13 - 1.21+
+
+softdepend: [Vault, PlaceholderAPI]
+
+commands:
+  money:
+    description: Узнать свой баланс или баланс другого игрока
+    aliases: [bal, balance]
+
+  pay:
+    description: Перевести деньги другому игроку
+
+  eco:
+    description: Управление экономикой сервера
+    permission: ecobridge.admin
+    permission-message: §cУ вас нет прав для использования этой команды.
+
+  baltop:
+    description: Посмотреть топ богатых игроков
+    aliases: [topmoney]
